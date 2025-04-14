@@ -10,6 +10,16 @@
         /// </summary>
         public string? AppName { get; set; }
 
+
+        /// <summary>
+        /// 本機路徑
+        /// </summary>
+        public string? LocalPath { get; set; }
+
+        /// <summary>
+        /// 下載遠端資料
+        /// </summary>
+        public string? DownloadRemotePath { get; set; }
         /// <summary>
         /// 下載IP、下載網域名稱
         /// </summary>
@@ -35,6 +45,13 @@
         /// 上傳密碼
         /// </summary>
         public string? UploadPassword { get; set; }
- 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int LastTime { get; set; }
+
+
     }
 }

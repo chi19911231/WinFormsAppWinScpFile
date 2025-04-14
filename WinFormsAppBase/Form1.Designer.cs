@@ -28,19 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
+            labelState = new Label();
+            timer1 = new System.Windows.Forms.Timer(components);
             SuspendLayout();
+            // 
+            // labelState
+            // 
+            labelState.AutoSize = true;
+            labelState.Location = new Point(12, 18);
+            labelState.Name = "labelState";
+            labelState.Size = new Size(39, 19);
+            labelState.TabIndex = 0;
+            labelState.Text = "狀態";
+            // 
+            // timer1
+            // 
+            timer1.Tick += timer1_Tick;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(9F, 19F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(labelState);
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
+
+        private Label labelState;
+        private System.Windows.Forms.Timer timer1;
     }
 }
