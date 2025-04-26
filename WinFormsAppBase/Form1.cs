@@ -7,7 +7,7 @@ namespace WinFormsAppBase
         /// <summary>
         /// 倒數
         /// </summary>
-        private int countdown = 10;
+        private int countDown = Settings.AppConfig.Setting.CountDown;
         public Form1()
         {
             InitializeComponent();
@@ -15,9 +15,9 @@ namespace WinFormsAppBase
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.Text = Settings.AppConfig.Settings.AppName;
+            this.Text = Settings.AppConfig.Setting.AppName;
 
-            labelState.Text = "計時開始，10秒後開始執行。";
+            labelState.Text = "10秒後開始執行。";
             timer1.Interval = 1000;
             timer1.Start();
         }
@@ -27,17 +27,16 @@ namespace WinFormsAppBase
         /// </summary>
         public void SftpFileDownload()
         {
-
-            string? localPath = Settings.AppConfig.Settings.LocalPath;
-            string? downloadRemotePath = Settings.AppConfig.Settings.DownloadRemotePath;
+            string? localPath = Settings.AppConfig.Setting.LocalPath;
+            string? downloadRemotePath = Settings.AppConfig.Setting.DownloadRemotePath;
 
             // 第一步：從第一台主機下載檔案
             SessionOptions sessionOptionsDownload = new SessionOptions
             {
                 Protocol = Protocol.Sftp,
-                HostName = Settings.AppConfig.Settings.DownloadHostName,
-                UserName = Settings.AppConfig.Settings.DownloadUserName,
-                Password = Settings.AppConfig.Settings.DownloadPassword,
+                HostName = Settings.AppConfig.Setting.DownloadHostName,
+                UserName = Settings.AppConfig.Setting.DownloadUserName,
+                Password = Settings.AppConfig.Setting.DownloadPassword,
                 //SshHostKeyFingerprint = "ssh-rsa 2048 AAAA..." // 實際填上                 
                 GiveUpSecurityAndAcceptAnySshHostKey = true,
                 //GiveUpSecurityAndAcceptAnyTlsHostCertificate=true,
@@ -45,6 +44,7 @@ namespace WinFormsAppBase
 
             string localTempFile = @$"{localPath}\group-3_instance-4_traffic_2025-04-14-27.log";
             string downloadFile = $"{downloadRemotePath}/group-3_instance-4_traffic_2025-04-14-27.log";
+
             using (Session sessionDownload = new Session())
             {
                 sessionDownload.Open(sessionOptionsDownload);
@@ -60,16 +60,16 @@ namespace WinFormsAppBase
         public void SftpFilesDownload()
         {
 
-            string? localPath = Settings.AppConfig.Settings.LocalPath;
-            string? downloadRemotePath = Settings.AppConfig.Settings.DownloadRemotePath;
+            string? localPath = Settings.AppConfig.Setting.LocalPath;
+            string? downloadRemotePath = Settings.AppConfig.Setting.DownloadRemotePath;
 
             // 第一步：從第一台主機下載檔案
             SessionOptions sessionOptionsDownload = new SessionOptions
             {
                 Protocol = Protocol.Sftp,
-                HostName = Settings.AppConfig.Settings.DownloadHostName,
-                UserName = Settings.AppConfig.Settings.DownloadUserName,
-                Password = Settings.AppConfig.Settings.DownloadPassword,
+                HostName = Settings.AppConfig.Setting.DownloadHostName,
+                UserName = Settings.AppConfig.Setting.DownloadUserName,
+                Password = Settings.AppConfig.Setting.DownloadPassword,
                 //SshHostKeyFingerprint = "ssh-rsa 2048 AAAA..." // 實際填上                 
                 GiveUpSecurityAndAcceptAnySshHostKey = true,
                 //GiveUpSecurityAndAcceptAnyTlsHostCertificate=true,
@@ -86,7 +86,7 @@ namespace WinFormsAppBase
                     RemoteDirectoryInfo directory = sessionDownload.ListDirectory(downloadRemotePath);
 
                     // 計算時間：目前時間往回推 24 小時
-                    DateTime lastTime = DateTime.UtcNow.AddHours(8).AddHours(Settings.AppConfig.Settings.LastTime);
+                    DateTime lastTime = DateTime.UtcNow.AddHours(8).AddHours(Settings.AppConfig.Setting.LastTime);
 
                     foreach (RemoteFileInfo file in directory.Files)
                     {
@@ -153,13 +153,13 @@ namespace WinFormsAppBase
 
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private async void timer1_Tick(object sender, EventArgs e)
         {
-            countdown--;
+            countDown--;
 
-            if (countdown > 0)
+            if (countDown > 0)
             {
-                labelState.Text = $"{ countdown.ToString() }秒後執行。";
+                labelState.Text = $"{ countDown.ToString() }秒後執行。";
             }
             else
             {
@@ -168,7 +168,11 @@ namespace WinFormsAppBase
                 timer1.Dispose();
                 labelState.Text = "執行中";
 
-                SftpFilesDownload();
+         
+                await Task.Run(() =>
+                {
+                    SftpFilesDownload();
+                });
 
                 //關閉程式
                 Application.Exit();
