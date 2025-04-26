@@ -15,11 +15,13 @@ namespace WinFormsAppBase
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
+           
             this.Text = Settings.AppConfig.Setting.AppName;
 
-            labelState.Text = "10秒後開始執行。";
-            timer1.Interval = 1000;
-            timer1.Start();
+            //labelState.Text = "10秒後開始執行。";
+            //timer1.Interval = 1000;
+            //timer1.Start();
         }
 
         /// <summary>
@@ -143,16 +145,54 @@ namespace WinFormsAppBase
         public void LocalFileUpload()
         {
 
+            string folderPath = @"C:\路徑\資料夾";
+
+            if (Directory.Exists(folderPath))
+            {
+                string[] files = Directory.GetFiles(folderPath);
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"已刪除：{file}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("找不到資料夾");
+            }
         }
 
         /// <summary>
-        /// 本機多檔案刪除(未完成)
+        /// 本機多檔案刪除
         /// </summary>
         public void LocalFilesDelete()
         {
+            
+            string? localPath = Settings.AppConfig.Setting.LocalPath;
+
+            if (Directory.Exists(localPath))
+            {
+                string[] files = Directory.GetFiles(localPath);
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                    labelState.Text = $"檔案已刪除{file}";
+                }
+            }
+            else
+            {
+                labelState.Text = $"找不到資料夾";
+            }
+
+            labelState.Text = $"暫存多檔案刪除執行完成。";
 
         }
 
+        /// <summary>
+        /// 計時器設定
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void timer1_Tick(object sender, EventArgs e)
         {
             countDown--;
@@ -172,6 +212,12 @@ namespace WinFormsAppBase
                 await Task.Run(() =>
                 {
                     SftpFilesDownload();
+
+                    if (Settings.AppConfig.Setting.LocalFileStore == "N") 
+                    {
+                        LocalFilesDelete();
+                    }
+
                 });
 
                 //關閉程式

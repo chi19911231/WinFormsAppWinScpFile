@@ -11,6 +11,11 @@
         public string? AppName { get; set; }
 
         /// <summary>
+        /// 本機是否保留
+        /// </summary>
+        public string? LocalFileStore { get; set; } 
+
+        /// <summary>
         /// 本機路徑
         /// </summary>
         public string? LocalPath { get; set; }
