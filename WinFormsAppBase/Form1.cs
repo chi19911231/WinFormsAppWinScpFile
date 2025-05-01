@@ -15,14 +15,77 @@ namespace WinFormsAppBase
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
-           
+            //SftpFilesUpload();
+            //NetworkDriveUpload();
+            
             this.Text = Settings.AppConfig.Setting.AppName;
 
-            //labelState.Text = "10秒後開始執行。";
-            //timer1.Interval = 1000;
-            //timer1.Start();
+            labelState.Text = $"{countDown.ToString()}秒後執行。";
+            timer1.Interval = 1000;
+            timer1.Start();
         }
+
+        /// <summary>
+        /// 計時器設定
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void timer1_Tick(object sender, EventArgs e)
+        {
+            countDown--;
+
+            if (countDown > 0)
+            {
+                labelState.Text = $"{countDown.ToString()}秒後執行。";
+            }
+            else
+            {
+                timer1.Stop(); // 停止計時器（只執行一次）
+                timer1.Tick -= timer1_Tick; // 移除事件避免記憶體問題
+                timer1.Dispose();
+                labelState.Text = "執行中";
+
+
+                await Task.Run(() =>
+                {
+
+
+                    if (Settings.AppConfig.Setting.SftpFilesUploadEnable == "Y")
+                    {
+                        
+                    }
+                    if (Settings.AppConfig.Setting.SftpFilesDownloadEnable == "Y")
+                    {
+                        SftpFilesDownload();
+                    }
+
+
+                    if (Settings.AppConfig.Setting.NetworkDriveUploadEnable == "Y")
+                    {
+                        NetworkDriveUpload();
+                    }
+                    if (Settings.AppConfig.Setting.NetworkDriveDownloadEnable == "Y")
+                    {
+                       
+                    }
+
+
+                    if (Settings.AppConfig.Setting.LocalFileDelete == "Y")
+                    {
+                        LocalFilesDelete();
+                    }
+
+
+
+
+                });
+
+                //關閉程式
+                Application.Exit();
+
+            }
+        }
+
 
         /// <summary>
         /// SFTP單檔案下載
@@ -30,15 +93,15 @@ namespace WinFormsAppBase
         public void SftpFileDownload()
         {
             string? localPath = Settings.AppConfig.Setting.LocalPath;
-            string? downloadRemotePath = Settings.AppConfig.Setting.DownloadRemotePath;
+            string? downloadRemotePath = Settings.AppConfig.Setting.SftpDownloadRemotePath;
 
             // 第一步：從第一台主機下載檔案
             SessionOptions sessionOptionsDownload = new SessionOptions
             {
                 Protocol = Protocol.Sftp,
-                HostName = Settings.AppConfig.Setting.DownloadHostName,
-                UserName = Settings.AppConfig.Setting.DownloadUserName,
-                Password = Settings.AppConfig.Setting.DownloadPassword,
+                HostName = Settings.AppConfig.Setting.SftpDownloadHostName,
+                UserName = Settings.AppConfig.Setting.SftpDownloadUserName,
+                Password = Settings.AppConfig.Setting.SftpDownloadPassword,
                 //SshHostKeyFingerprint = "ssh-rsa 2048 AAAA..." // 實際填上                 
                 GiveUpSecurityAndAcceptAnySshHostKey = true,
                 //GiveUpSecurityAndAcceptAnyTlsHostCertificate=true,
@@ -63,15 +126,15 @@ namespace WinFormsAppBase
         {
 
             string? localPath = Settings.AppConfig.Setting.LocalPath;
-            string? downloadRemotePath = Settings.AppConfig.Setting.DownloadRemotePath;
+            string? downloadRemotePath = Settings.AppConfig.Setting.SftpDownloadRemotePath;
 
             // 第一步：從第一台主機下載檔案
             SessionOptions sessionOptionsDownload = new SessionOptions
             {
                 Protocol = Protocol.Sftp,
-                HostName = Settings.AppConfig.Setting.DownloadHostName,
-                UserName = Settings.AppConfig.Setting.DownloadUserName,
-                Password = Settings.AppConfig.Setting.DownloadPassword,
+                HostName = Settings.AppConfig.Setting.SftpDownloadHostName,
+                UserName = Settings.AppConfig.Setting.SftpDownloadUserName,
+                Password = Settings.AppConfig.Setting.SftpDownloadPassword,
                 //SshHostKeyFingerprint = "ssh-rsa 2048 AAAA..." // 實際填上                 
                 GiveUpSecurityAndAcceptAnySshHostKey = true,
                 //GiveUpSecurityAndAcceptAnyTlsHostCertificate=true,
@@ -87,7 +150,7 @@ namespace WinFormsAppBase
                     // 取得所有檔案清單
                     RemoteDirectoryInfo directory = sessionDownload.ListDirectory(downloadRemotePath);
 
-                    // 計算時間：目前時間往回推 24 小時
+                    // 計算時間：目前時間往回推 N 小時
                     DateTime lastTime = DateTime.UtcNow.AddHours(8).AddHours(Settings.AppConfig.Setting.LastTime);
 
                     foreach (RemoteFileInfo file in directory.Files)
@@ -110,8 +173,6 @@ namespace WinFormsAppBase
 
                 }
 
-                labelState.Text = "執行完成";
-
             }
             catch (Exception exception)
             {
@@ -127,6 +188,7 @@ namespace WinFormsAppBase
         {
            
 
+
         }
 
         /// <summary>
@@ -134,8 +196,69 @@ namespace WinFormsAppBase
         /// </summary>
         public void SftpFilesUpload()
         {
+            MessageBox.Show("SftpFilesUpload" );
+            try
+            {
+                string? localPath = Settings.AppConfig.Setting.LocalPath;
+                string? localFile = @$"{localPath}";
+
+                string? uploadRemotePath = Settings.AppConfig.Setting.SftpUploadRemotePath;
+
+                MessageBox.Show("uploadRemotePath:"+ uploadRemotePath);
+                // 建立 session 選項
+                SessionOptions sessionOptions = new SessionOptions
+                {
+                    Protocol = Protocol.Sftp,
+                    HostName = Settings.AppConfig.Setting.SftpUploadHostName,
+                    UserName = Settings.AppConfig.Setting.SftpDownloadUserName,
+                    Password = Settings.AppConfig.Setting.SftpUploadPassword,
+                    //SshHostKeyFingerprint = "ssh-rsa 2048 AAAA..." // 實際填上                 
+                    GiveUpSecurityAndAcceptAnySshHostKey = true,
+                    //GiveUpSecurityAndAcceptAnyTlsHostCertificate=true,
+                };
+
+                using (Session session = new Session())
+                {
+                    // 連線
+                    session.Open(sessionOptions);
+
+                    // 要上傳的檔案資訊
+                    TransferOptions transferOptions = new TransferOptions();
+                    transferOptions.TransferMode = TransferMode.Binary;
+                    transferOptions.OverwriteMode = OverwriteMode.Overwrite;
+
+                    MessageBox.Show("1");
 
 
+                    // 開始上傳
+                    TransferOperationResult transferResult;
+                    //transferResult = session.PutFiles(@$"{localPath}/Test.txt", @$"{uploadRemotePath}/", false, transferOptions);
+
+                    // 先刪除遠端檔案
+                    //session.RemoveFiles(@$"{uploadRemotePath}/Test.txt");
+                    //MessageBox.Show(@$"{uploadRemotePath}/Test.txt");
+
+                    // 再上傳檔案
+                    transferResult = session.PutFiles(@$"{localPath}\Test.txt", $"{uploadRemotePath}", false, transferOptions);
+
+
+                    MessageBox.Show(@$"{localPath}/Test.txt");
+
+
+                    MessageBox.Show(@$"{uploadRemotePath}/");
+
+
+                    // 檢查結果
+                    transferResult.Check();
+                    MessageBox.Show("3");
+                    Console.WriteLine("檔案上傳成功！");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("錯誤訊息： " + e.Message);
+                Console.WriteLine("錯誤訊息： " + e.Message);
+            }
         }
 
 
@@ -189,41 +312,51 @@ namespace WinFormsAppBase
         }
 
         /// <summary>
-        /// 計時器設定
+        /// 網路磁碟上傳
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void timer1_Tick(object sender, EventArgs e)
+        public void NetworkDriveUpload()
         {
-            countDown--;
+            // 本機資料夾
+            string localFolderPath = $@"{Settings.AppConfig.Setting.LocalPath}";
 
-            if (countDown > 0)
+            //網路磁碟資料夾
+            string networkFolderPath = $@"{Settings.AppConfig.Setting.NetworkDriveUploadPath}";
+                      
+            // 取得本機資料夾內所有檔案（不含子資料夾）
+            string[] files = Directory.GetFiles(localFolderPath);
+
+            foreach (var file in files)
             {
-                labelState.Text = $"{ countDown.ToString() }秒後執行。";
+                // 複製檔案（true：如果有同名就覆蓋）
+                File.Copy(file,  Path.Combine(networkFolderPath, Path.GetFileName(file) ) , true);
+                labelState.Text = $"檔案上傳:{Path.GetFileName(file)}";
             }
-            else
+            
+            labelState.Text = $"檔案上傳成功";
+
+        }
+
+        /// <summary>
+        /// 網路磁碟下載
+        /// </summary>
+        public void NetworkDriveDownload()
+        {   
+
+            // 假設你的網路磁碟是 Z:\ 資料夾
+            string networkPath = @"Z:\SomeFolder\SomeFile.txt";
+
+            // 讀取文字檔案內容
+            string content = File.ReadAllText(networkPath);
+
+            // 如果是列出資料夾內的檔案
+            string[] files = Directory.GetFiles(@"Z:\SomeFolder");
+
+            foreach (var file in files)
             {
-                timer1.Stop(); // 停止計時器（只執行一次）
-                timer1.Tick -= timer1_Tick; // 移除事件避免記憶體問題
-                timer1.Dispose();
-                labelState.Text = "執行中";
-
-         
-                await Task.Run(() =>
-                {
-                    SftpFilesDownload();
-
-                    if (Settings.AppConfig.Setting.LocalFileStore == "N") 
-                    {
-                        LocalFilesDelete();
-                    }
-
-                });
-
-                //關閉程式
-                Application.Exit();
-
+                Console.WriteLine(file);
             }
         }
+
+      
     }
 }

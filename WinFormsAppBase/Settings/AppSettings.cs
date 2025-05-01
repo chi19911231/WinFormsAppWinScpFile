@@ -10,10 +10,11 @@
         /// </summary>
         public string? AppName { get; set; }
 
+
         /// <summary>
-        /// 本機是否保留
+        /// 本機檔案刪除(Y:是)
         /// </summary>
-        public string? LocalFileStore { get; set; } 
+        public string? LocalFileDelete { get; set; } 
 
         /// <summary>
         /// 本機路徑
@@ -21,39 +22,76 @@
         public string? LocalPath { get; set; }
 
         /// <summary>
-        /// 下載遠端資料
+        /// 網路磁碟上傳功能是否啟用(Y:是)
         /// </summary>
-        public string? DownloadRemotePath { get; set; }
+        public string? NetworkDriveUploadEnable { get; set; }
 
         /// <summary>
-        /// 下載IP、下載網域名稱
+        /// 網路磁碟上傳路徑
         /// </summary>
-        public string? DownloadHostName { get; set; }
+        public string? NetworkDriveUploadPath { get; set; }
 
         /// <summary>
-        /// 下載使用者名稱
+        /// 網路磁碟下載功能是否啟用(Y:是)
         /// </summary>
-        public string? DownloadUserName { get; set; }
+        public string? NetworkDriveDownloadEnable { get; set; }
 
         /// <summary>
-        /// 下載密碼
+        /// 網路磁碟下載路徑
         /// </summary>
-        public string? DownloadPassword { get; set; }
+        public string? NetworkDriveDownloadPath { get; set; }
+
 
         /// <summary>
-        /// 上傳IP、上傳網域名稱
+        /// Sftp上傳功能是否啟用(Y:是)
         /// </summary>
-        public string? UploadHostName { get; set; }
+        public string? SftpFilesUploadEnable { get; set; }
 
         /// <summary>
-        /// 上傳使用者名稱
+        /// Sftp IP(上傳)、網域名稱(上傳)
         /// </summary>
-        public string? UploadUserName { get; set; }
+        public string? SftpUploadHostName { get; set; }
 
         /// <summary>
-        /// 上傳密碼
+        /// Sftp使用者名稱(上傳)
         /// </summary>
-        public string? UploadPassword { get; set; }
+        public string? SftpUploadUserName { get; set; }
+
+        /// <summary>
+        /// Sftp使用者密碼(上傳)
+        /// </summary>
+        public string? SftpUploadPassword { get; set; }
+
+        /// <summary>
+        /// Sftp上傳路徑
+        /// </summary>
+        public string? SftpUploadRemotePath { get; set; }
+
+
+        /// <summary>
+        /// Sftp下載功能是否啟用(Y:是)
+        /// </summary>
+        public string? SftpFilesDownloadEnable { get; set; }
+
+        /// <summary>
+        /// Sftp IP(下載)、網域名稱(下載)
+        /// </summary>
+        public string? SftpDownloadHostName { get; set; }
+
+        /// <summary>
+        /// Sftp使用者名稱(下載)
+        /// </summary>
+        public string? SftpDownloadUserName { get; set; }
+
+        /// <summary>
+        /// Sftp使用者密碼(下載)
+        /// </summary>
+        public string? SftpDownloadPassword { get; set; }
+
+        /// <summary>
+        /// Sftp下載路徑
+        /// </summary>
+        public string? SftpDownloadRemotePath { get; set; }
 
         /// <summary>
         /// 最後時間
